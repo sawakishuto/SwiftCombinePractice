@@ -6,11 +6,17 @@ let subject = PassthroughSubject<String, Never>()
 
 let publisher = subject.eraseToAnyPublisher()
 
+final class Sender {
+    @Published var event: String = "A"
+}
+let sender = Sender()
+
 final class Receiver {
     var subscription = Set<AnyCancellable>()
 
     init() {
-        publisher
+        print("インスタンス生成")
+        sender.$event
             .sink { value in
                 print("received value", value)
             }
@@ -19,8 +25,5 @@ final class Receiver {
 }
 
 let receiver = Receiver()
-subject.send("a")
-subject.send("b")
-subject.send("c")
-subject.send("d")
+sender.event = "B"
 
