@@ -2,24 +2,28 @@ import UIKit
 import Combine
 import Foundation
 
-let myNotification = Notification.Name("myNotification")
-let publisher = NotificationCenter.default.publisher(for: myNotification)
+let url = URL(string: "https://www.example.com")!
+let publisher = URLSession.shared.dataTaskPublisher(for: url)
 
 final class Receiver {
-    var subscription = Set<AnyCancellable>()
+    var subscriptions = Set<AnyCancellable>()
 
     init() {
         publisher
-            .sink { value in
-                print("受け取った", value)
+            .sink { completion in
+                if case let .failure(error) = completion{
+                    print("received error", completion)
+                } else {
+                    print("recieved completion", completion)
+                }
+
+            } receiveValue: { data, responce in
+                print("received data", data)
+                print("received response", responce)
             }
-            .store(in: &subscription)
+            .store(in: &subscriptions)
+
     }
 }
 
 let receiver = Receiver()
-print("スタート")
-DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
-    NotificationCenter.default.post(Notification(name: myNotification))
-}
-
