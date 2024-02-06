@@ -1,27 +1,21 @@
 import UIKit
 import Combine
 
-let subject = PassthroughSubject<Int, Never>()
-
-final class SomeObject {
-    var value: Int = 0 {
-        didSet {
-            print("didset value", value * 5)
-        }
-    }
-}
+let publisher = (1...5).publisher
 
 final class Reciever {
     var subscriptions = Set<AnyCancellable>()
-    let object = SomeObject()
 
-    init(){
-        subject
-            .assign(to: \.value, on: object)
+    init() {
+        publisher
+            .sink { completion in
+                print("完了", completion)
+            } receiveValue: { value in
+                print("受け取った値", value)
+            }
             .store(in: &subscriptions)
+
     }
 }
 
 let reciever = Reciever()
-subject.send(1)
-subject.send(2)
