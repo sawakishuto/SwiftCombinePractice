@@ -1,7 +1,11 @@
 import UIKit
 import Combine
 
-let subject = PassthroughSubject<String, Never>()
+enum MyError: Error {
+    case failed
+}
+
+let subject = PassthroughSubject<String, MyError>()
 
 subject
     .sink(receiveCompletion: { completion in
@@ -11,5 +15,5 @@ subject
     })
 subject.send("にゃ")
 subject.send("にょ")
-subject.send(completion: .finished)
+subject.send(completion: .failure(.failed))
 
