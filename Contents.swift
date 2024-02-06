@@ -2,28 +2,25 @@ import UIKit
 import Combine
 import Foundation
 
-let url = URL(string: "https://www.example.com")!
-let publisher = URLSession.shared.dataTaskPublisher(for: url)
+let subject = PassthroughSubject<String, Never>()
+
+let publisher = subject.eraseToAnyPublisher()
 
 final class Receiver {
-    var subscriptions = Set<AnyCancellable>()
+    var subscription = Set<AnyCancellable>()
 
     init() {
         publisher
-            .sink { completion in
-                if case let .failure(error) = completion{
-                    print("received error", completion)
-                } else {
-                    print("recieved completion", completion)
-                }
-
-            } receiveValue: { data, responce in
-                print("received data", data)
-                print("received response", responce)
+            .sink { value in
+                print("received value", value)
             }
-            .store(in: &subscriptions)
-
+            .store(in: &subscription)
     }
 }
 
 let receiver = Receiver()
+subject.send("a")
+subject.send("b")
+subject.send("c")
+subject.send("d")
+
