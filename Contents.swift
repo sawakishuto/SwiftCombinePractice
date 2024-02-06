@@ -1,19 +1,20 @@
 import UIKit
 import Combine
 
-enum MyError: Error {
-    case failed
+let subject = PassthroughSubject<String, Never>()
+
+final class Reciever {
+    let subscription: AnyCancellable
+    init() {
+       subscription = subject
+            .sink { value in
+                print("Recieved value:", value)
+            }
+    }
 }
 
-let subject = PassthroughSubject<String, MyError>()
-
-subject
-    .sink(receiveCompletion: { completion in
-        print("完了！！", completion)
-    }, receiveValue: { value in
-        print("値を受け取りました：", value)
-    })
-subject.send("にゃ")
-subject.send("にょ")
-subject.send(completion: .failure(.failed))
+let reciever = Reciever()
+subject.send("にゃん")
+reciever.subscription.cancel()
+subject.send("ウェイ")
 
