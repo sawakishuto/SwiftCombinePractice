@@ -1,17 +1,17 @@
 import UIKit
 import Combine
+import Foundation
 
-let publisher = (1...5).publisher
+let publisher = Timer.publish(every: 1, on: .main, in: .common)
 
 final class Reciever {
     var subscriptions = Set<AnyCancellable>()
 
     init() {
         publisher
-            .sink { completion in
-                print("完了", completion)
-            } receiveValue: { value in
-                print("受け取った値", value)
+            .autoconnect()
+            .sink { value in
+                print("受け取ったよ", value)
             }
             .store(in: &subscriptions)
 
