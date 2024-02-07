@@ -2,28 +2,30 @@ import UIKit
 import Combine
 import Foundation
 
-let subject = PassthroughSubject<String, Never>()
-
-let publisher = subject.eraseToAnyPublisher()
-
-final class Sender {
-    @Published var event: String = "A"
+final class Model {
+    @Published var value: String = "0"
 }
-let sender = Sender()
+let model = Model()
 
-final class Receiver {
-    var subscription = Set<AnyCancellable>()
-
-    init() {
-        print("インスタンス生成")
-        sender.$event
-            .sink { value in
-                print("received value", value)
-            }
-            .store(in: &subscription)
+final class ViewModel {
+    var text: String = "" {
+        didSet {
+            print("didset text", text)
+        }
     }
 }
 
-let receiver = Receiver()
-sender.event = "B"
+final class Receiver {
+    var subscriptions = Set<AnyCancellable>()
+    let viewModel = ViewModel()
 
+    init() {
+        model.$value
+            .assign(to: \.text, on: viewModel)
+            .store(in: &subscriptions)
+    }
+}
+
+let receive = Receiver()
+model.value = "1"
+model.value = "2"
