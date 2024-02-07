@@ -3,7 +3,8 @@ import Combine
 import Foundation
 
 final class Model {
-    @Published var value: String = "0"
+    let subjectX = PassthroughSubject<String, Never>()
+    let subjectY = PassthroughSubject<String, Never>()
 }
 let model = Model()
 
@@ -18,14 +19,19 @@ final class ViewModel {
 final class Receiver {
     var subscriptions = Set<AnyCancellable>()
     let viewModel = ViewModel()
+    let formatter = NumberFormatter()
 
     init() {
-        model.$value
+        model.subjectX
+            .combineLatest(model.subjectY)
+            .map{ valueX, valueY in
+                "X: " + valueX + "Y: " + valueY
+            }
             .assign(to: \.text, on: viewModel)
             .store(in: &subscriptions)
     }
 }
 
 let receive = Receiver()
-model.value = "1"
-model.value = "2"
+model.subjectX.send("1")
+model.subjectY.send("2")
